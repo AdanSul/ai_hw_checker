@@ -1,67 +1,139 @@
-# ------------------------------------
+# --- make project root importable (so 'ahc' works when running from /app) ---
 import sys, os
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-# ------------------------------------
-
+# ------------------------------------------------------------------------------
 
 import streamlit as st
-from ahc.pipeline import run_full_pipeline
-from ahc.exporters import export_csv, export_jsonl
-import zipfile, tempfile, os
 from pathlib import Path
-import pandas as pd
+import tempfile
+import traceback
 
+from ahc.pipeline import run_full_pipeline
+from app.components import (
+    build_dataframe,
+    extract_zip_to_temp,
+    bytes_of_csv_jsonl,
+    render_results_table,
+    render_summary,
+    render_downloads,
+    render_student_view,
+)
+from app.state import (
+    ensure_session_state,
+    set_assignment_preview,
+    set_results_df,
+    get_results,
+    get_df,
+    set_error,
+    get_error,
+    get_assignment_preview,
+)
+
+# ---------- Streamlit base config ----------
 st.set_page_config(page_title="AI Homework Checker", layout="wide")
 st.title("AI Homework Checker")
 
+# ---------- Init state ----------
+ensure_session_state()
+
+# ---------- Sidebar (inputs) ----------
 with st.sidebar:
-    assignment = st.file_uploader("📄 הוראות תרגיל (MD)", type=["md"])
-    subs_zip  = st.file_uploader("🗂️ הגשות (ZIP של תיקיות)", type=["zip"])
-    model = st.selectbox("מודל", ["gpt-4o-mini", "gpt-4o"])
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.1, 0.1)
-    go = st.button("🚀 הרצה")
+    st.header("Run settings")
+    assignment_file = st.file_uploader("📄 Assignment file (Markdown)", type=["md", "txt"])
+    subs_zip       = st.file_uploader("🗂️ Submissions ZIP", type=["zip"])
+    model          = st.selectbox("Model", ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo-0125"])
+    temperature    = st.slider("Temperature", 0.0, 1.0, 0.1, 0.1)
+    show_feedback  = st.checkbox("Show feedback columns in table", value=True)
+    ai_threshold   = st.slider("AI score highlight threshold", 0.0, 1.0, 0.25, 0.01)
+    run_btn        = st.button("🚀 Run")
 
-tabs = st.tabs(["תוצאות", "פירוט סטודנט"])
+# ---------- Tabs ----------
+tab_results, tab_student, tab_logs = st.tabs(["Results", "Student", "Logs/Preview"])
 
-if go and assignment and subs_zip:
-    with tempfile.TemporaryDirectory() as td:
-        a_path = Path(td) / "assignment.md"
-        a_path.write_text(assignment.getvalue().decode("utf-8"), encoding="utf-8")
-        subs_dir = Path(td) / "subs"
-        subs_dir.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(subs_zip) as z:
-            z.extractall(subs_dir)
+# ---------- Run pipeline on click ----------
+if run_btn:
+    set_error("")
+    if not assignment_file or not subs_zip:
+        st.warning("Please upload both an assignment file and a submissions ZIP.", icon="⚠️")
+    else:
+        try:
+            with st.spinner("Parsing → evaluating → aggregating..."):
+                # Save assignment to temp file (for pipeline)
+                tmp_dir = Path(tempfile.mkdtemp(prefix="ahc_run_"))
+                a_path = tmp_dir / "assignment.md"
+                try:
+                    a_text = assignment_file.getvalue().decode("utf-8")
+                except UnicodeDecodeError:
+                    a_text = assignment_file.getvalue().decode("latin-1")
+                a_path.write_text(a_text, encoding="utf-8")
+                set_assignment_preview(a_text)
 
-        results = run_full_pipeline(str(a_path), str(subs_dir), model, temperature)
+                # Extract submissions ZIP to temp dir
+                subs_dir = extract_zip_to_temp(subs_zip)
 
-        # הורדות
-        out_dir = Path(td)
-        csv_p = out_dir / "grades.csv"
-        jsonl_p = out_dir / "grades.jsonl"
-        export_csv(results, csv_p)
-        export_jsonl(results, jsonl_p)
+                # Run pipeline
+                results = run_full_pipeline(
+                    assignment_path=str(a_path),
+                    submissions_dir=str(subs_dir),
+                    model=model,
+                    temperature=temperature,
+                )
+                df = build_dataframe(results, include_feedback=show_feedback)
 
-        st.download_button("⬇️ הורדת CSV", data=csv_p.read_bytes(), file_name="grades.csv", mime="text/csv")
-        st.download_button("⬇️ הורדת JSONL", data=jsonl_p.read_bytes(), file_name="grades.jsonl", mime="application/json")
+                set_results_df(results, df)
 
-        rows=[]
-        for r in results:
-            row={"student_id": r["student_id"], "final_score": r["final_score"], "ai_score": r["ai_suspicion"]["score"]}
-            for it in r["results"]:
-                row[f"{it['task']}_score"] = it["score"]
-            rows.append(row)
-        df = pd.DataFrame(rows)
-        with tabs[0]:
-            st.dataframe(df, use_container_width=True)
-        with tabs[1]:
-            sid = st.selectbox("בחרי סטודנט", [r["student_id"] for r in results])
-            rec = next(x for x in results if x["student_id"]==sid)
-            st.markdown(f"**ציון סופי:** {rec['final_score']}")
-            st.markdown(f"**AI חשד:** {rec['ai_suspicion']['score']}  \n*סיבות:* {', '.join(rec['ai_suspicion']['reasons']) or '—'}")
-            for it in rec["results"]:
-                st.markdown(f"### {it['task']}")
-                st.markdown(f"**ציון:** {it['score']}")
-                st.markdown("**פידבק:**")
-                st.code(it.get("feedback",""), language="markdown")
+            st.success("Run completed successfully ✅", icon="✅")
+
+        except Exception as e:
+            set_error(f"{type(e).__name__}: {e}")
+            st.error("An error occurred during the run.", icon="❌")
+            with tab_logs:
+                st.code(traceback.format_exc(), language="text")
+
+# ---------- Results tab ----------
+with tab_results:
+    df = get_df()
+    results = get_results()
+
+    if df.empty:
+        st.info("No results to display yet. Upload files and click Run.", icon="ℹ️")
+    else:
+        left, right = st.columns([2, 1])
+
+        with left:
+            st.subheader("Results table")
+            render_results_table(df, ai_threshold)
+
+        with right:
+            st.subheader("Summary")
+            render_summary(df)
+
+            if results:
+                csv_bytes, jsonl_bytes = bytes_of_csv_jsonl(results, include_feedback=show_feedback)
+                render_downloads(csv_bytes, jsonl_bytes)
+
+# ---------- Student tab ----------
+with tab_student:
+    results = get_results()
+    if not results:
+        st.info("No data yet. Run the checker, then select a student.", icon="ℹ️")
+    else:
+        render_student_view(results)
+
+# ---------- Logs tab ----------
+with tab_logs:
+    st.subheader("Assignment preview (Markdown)")
+    preview = get_assignment_preview()
+    if preview:
+        st.code(preview, language="markdown")
+    else:
+        st.write("—")
+
+    err = get_error()
+    if err:
+        st.subheader("Last error")
+        st.code(err, language="text")
+
+st.caption("v0 • Streamlit UI for AHC • All prompts and code comments in English.")
