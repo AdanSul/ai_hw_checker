@@ -1,9 +1,11 @@
-# --- make project root importable (so 'ahc' works when running from /app) ---
+# ----------------------------------------------------
 import sys, os
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
-# ------------------------------------------------------------------------------
+THIS_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(THIS_DIR, ".."))
+for p in (THIS_DIR, ROOT):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+# --------------------------------------------------------
 
 import streamlit as st
 from pathlib import Path
@@ -11,7 +13,8 @@ import tempfile
 import traceback
 
 from ahc.pipeline import run_full_pipeline
-from app.components import (
+# NOTE: local imports (no "app." prefix)
+from components import (
     build_dataframe,
     extract_zip_to_temp,
     bytes_of_csv_jsonl,
@@ -20,7 +23,7 @@ from app.components import (
     render_downloads,
     render_student_view,
 )
-from app.state import (
+from state import (
     ensure_session_state,
     set_assignment_preview,
     set_results_df,
@@ -60,7 +63,6 @@ if run_btn:
     else:
         try:
             with st.spinner("Parsing → evaluating → aggregating..."):
-                # Save assignment to temp file (for pipeline)
                 tmp_dir = Path(tempfile.mkdtemp(prefix="ahc_run_"))
                 a_path = tmp_dir / "assignment.md"
                 try:
@@ -70,10 +72,8 @@ if run_btn:
                 a_path.write_text(a_text, encoding="utf-8")
                 set_assignment_preview(a_text)
 
-                # Extract submissions ZIP to temp dir
                 subs_dir = extract_zip_to_temp(subs_zip)
 
-                # Run pipeline
                 results = run_full_pipeline(
                     assignment_path=str(a_path),
                     submissions_dir=str(subs_dir),
@@ -81,7 +81,6 @@ if run_btn:
                     temperature=temperature,
                 )
                 df = build_dataframe(results, include_feedback=show_feedback)
-
                 set_results_df(results, df)
 
             st.success("Run completed successfully ✅", icon="✅")
@@ -101,15 +100,12 @@ with tab_results:
         st.info("No results to display yet. Upload files and click Run.", icon="ℹ️")
     else:
         left, right = st.columns([2, 1])
-
         with left:
             st.subheader("Results table")
             render_results_table(df, ai_threshold)
-
         with right:
             st.subheader("Summary")
             render_summary(df)
-
             if results:
                 csv_bytes, jsonl_bytes = bytes_of_csv_jsonl(results, include_feedback=show_feedback)
                 render_downloads(csv_bytes, jsonl_bytes)
@@ -135,5 +131,3 @@ with tab_logs:
     if err:
         st.subheader("Last error")
         st.code(err, language="text")
-
-st.caption("v0 • Streamlit UI for AHC • All prompts and code comments in English.")
