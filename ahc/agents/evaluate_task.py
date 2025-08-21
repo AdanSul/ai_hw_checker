@@ -81,7 +81,7 @@ def _eval_single_task(task: Dict[str, Any], student_code: str,
         "Be concise, kind, and actionable.\n"
         "\n"
         "OUTPUT FORMAT (must be exactly one line, no newlines, no code blocks):\n"
-        "Feedback: <friendly, specific sentence, <= 20 words> Score: <integer 0..100>\n"
+        "Feedback: <friendly, specific sentence, <= 25 words> Score: <integer 0..100>\n"
         "Never include extra text. Never say 'As an AI'."
     )
 
@@ -128,14 +128,14 @@ def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: 
         "STRICT OUTPUT: return ONLY a JSON object with this exact shape:\n"
         "{\n"
         '  "results": [\n'
-        '    {"task": "task1", "score": 0, "feedback": "short sentence (<= 20 words)"},\n'
-        '    {"task": "task2", "score": 0, "feedback": "short sentence (<= 20 words)"}\n'
+        '    {"task": "task1", "score": 0, "feedback": "short sentence (<= 25 words)"},\n'
+        '    {"task": "task2", "score": 0, "feedback": "short sentence (<= 25 words)"}\n'
         "  ]\n"
         "}\n"
         "Rules:\n"
         "- Include exactly one object per provided task, preserving the given task IDs.\n"
         "- score is an integer 0..100.\n"
-        "- feedback is a single short sentence (<= 20 words). No line breaks, no code blocks.\n"
+        "- feedback is a single short sentence (<= 25 words). No line breaks, no code blocks.\n"
         "- Do NOT include any keys other than 'results'.\n"
         "- Never say 'As an AI'."
     ))
