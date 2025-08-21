@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "created_at": 1755772707,
+    "model": "gpt-4o-mini",
+    "temperature": 0.0,
+    "schema_version": "tasks_v1",
+    "assignment_sha256": "9d69d457534ec4d9937e3b5dafa7ebe92e123fb386dd58e0d961b020e4e11509",
+    "source_file": "C:\\Users\\adans\\AppData\\Local\\Temp\\ahc_run_d09gblox\\assignment.md"
+  },
+  "tasks": [
+    {
+      "task_id": "task1",
+      "description": "Build a simple calculator that supports addition, subtraction, and parentheses. Implement two functions: check_valid(expression) to validate the expression and evaluate(expression) to compute it recursively. The program should read a mathematical expression and print its value.",
+      "expected_filename": "task1.py",
+      "type": "code",
+      "lang": "python",
+      "points": 25,
+      "examples": [
+        {
+          "input": "9+8+3-(8+1)",
+          "output": "Expression is not valid! Please try again: 1 - (4-3) + 3\n1-(4-3)+3 = 3"
+        },
+        {
+          "input": "(2+3)-(4+7)-(3-5)-(9-6)-(10-2)",
+          "output": "-15"
+        }
+      ]
+    },
+    {
+      "task_id": "task2",
+      "description": "Write a program that simulates a game where players are eliminated in a circle based on a given number of steps. Implement a function play_game that returns the order of elimination and the winner.",
+      "expected_filename": "task2.py",
+      "type": "code",
+      "lang": "python",
+      "points": 25,
+      "examples": [
+        {
+          "input": "Alice Bob Charlie Dana 6",
+          "output": "Eliminated order: ['Bob', 'Alice', 'Dana']\nWinner: Charlie"
+        },
+        {
+          "input": "Alice Bob 0",
+          "output": "Error: Invalid steps number."
+        }
+      ]
+    },
+    {
+      "task_id": "task3",
+      "description": "Create a program that implements RSA encryption. The program should generate keys, encrypt messages, and decrypt messages. Implement functions for key generation, encryption, and decryption.",
+      "expected_filename": "task3.py",
+      "type": "code",
+      "lang": "python",
+      "points": 25,
+      "examples": [
+        {
+          "input": "Hello",
+          "output": "Encrypted message is `24550831$17848346$21349315$21349315$25525994`"
+        },
+        {
+          "input": "5",
+          "output": "Illegal input! Please choose an action: 2\nDecrypted message is `Hello`"
+        }
+      ]
+    },
+    {
+      "task_id": "task4",
+      "description": "Implement the Tribonacci sequence recursively and iteratively. Write a function tribonacci_recursive(n) to compute the nth term recursively and tribonacci_iterative(n) to compute it iteratively. Also, implement run_and_time(n) to measure execution time.",
+      "expected_filename": "task4.py",
+      "type": "code",
+      "lang": "python",
+      "points": 25,
+      "examples": [
+        {
+          "input": "10",
+          "output": "Iterative Execution time: ## seconds\nF(10) = 149\nRecursive Execution time: ## seconds\nF(10) = 149"
+        }
+      ]
+    }
+  ]
+}

@@ -69,6 +69,7 @@ def _eval_single_task(task: Dict[str, Any], student_code: str,
     One LLM call (fallback path). Returns (score, feedback).
     Uses a strict one-line format and a fairness-oriented rubric.
     """
+    print("seperate")
     desc     = task.get("description", "")
     examples = task.get("examples", "")
     system_msg = (
