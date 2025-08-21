@@ -1,4 +1,4 @@
-import os, re, json, time
+import os, re, json, time, hashlib
 from pathlib import Path
 from collections import defaultdict, Counter
 from typing import Dict, List, Any
@@ -14,6 +14,10 @@ load_dotenv()
 
 DEFAULT_MODEL = os.getenv("AHC_PARSE_MODEL", "gpt-4o-mini")
 DEFAULT_TEMPERATURE = float(os.getenv("AHC_PARSE_TEMPERATURE", "0.0"))
+
+# store cached parses
+CACHE_DIR_DEFAULT = os.getenv("AHC_PARSE_CACHE_DIR", "outputs/cache/assignments")
+SCHEMA_VERSION = "tasks_v1" 
 
 _JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
 _BRACES     = re.compile(r"(\{.*\})", re.DOTALL)
@@ -47,7 +51,6 @@ def llm_call_json(system_prompt: str, user_prompt: str,
         api_key=os.getenv("OPENAI_API_KEY"),
         timeout=60,
         max_retries=1,
-        # Force JSON response when supported (gpt-4o, gpt-4o-mini, etc.)
         model_kwargs={"response_format": {"type": "json_object"}},
     )
     resp = chat.invoke([SystemMessage(content=system_prompt), HumanMessage(content=user_prompt)]).content
@@ -105,7 +108,6 @@ def _normalize_task(t: Dict[str, Any]) -> Dict[str, Any]:
             t[k] = t[k].strip()
     return t
 
-
 def _merge_trials(trials: List[Dict[str, Any]]) -> Dict[str, Any]:
     variants: dict[str, list[Dict[str, Any]]] = defaultdict(list)
     for parsed in trials:
@@ -138,17 +140,68 @@ def _merge_trials(trials: List[Dict[str, Any]]) -> Dict[str, Any]:
             "examples": next((it.get("examples","") for it in items if it.get("examples")), "")
         })
     def _tid_key(task_id: str):
-        s = str(task_id) 
+        s = str(task_id)
         m = re.search(r"(\d+)", s)
         return (int(m.group(1)) if m else 1_000_000, s)
 
     merged.sort(key=lambda t: _tid_key(t["task_id"]))
     return {"tasks": merged}
 
-def parse_assignment(assignment_path: str, model: str = DEFAULT_MODEL,
-                     temperature: float = DEFAULT_TEMPERATURE, n_trials: int = 1) -> Dict[str, Any]:
-    # n_trials=1 for speed & easier debugging; increase later if needed
+# -------------------- DISK CACHE HELPERS --------------------
+
+def _cache_key(spec_text: str, model: str) -> str:
+    """Stable key for the assignment spec + model + schema version."""
+    h = hashlib.sha256()
+    h.update(spec_text.encode("utf-8"))
+    h.update(b"|model=" + (model or "").encode("utf-8"))
+    h.update(b"|schema=" + SCHEMA_VERSION.encode("utf-8"))
+    return h.hexdigest()
+
+def _cache_file_for(key: str, cache_dir: str) -> Path:
+    p = Path(cache_dir); p.mkdir(parents=True, exist_ok=True)
+    return p / f"{key}.json"
+
+def _save_cache(cache_path: Path, tasks_obj: Dict[str, Any], meta: Dict[str, Any]):
+    record = {"_meta": meta, "tasks": tasks_obj.get("tasks", [])}
+    cache_path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+
+def _load_cache(cache_path: Path) -> Dict[str, Any] | None:
+    try:
+        data = json.loads(cache_path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and isinstance(data.get("tasks"), list):
+            return {"tasks": data["tasks"]}  # return only the shape downstream expects
+    except Exception:
+        return None
+    return None
+
+# -------------------- PUBLIC API --------------------
+
+def parse_assignment(assignment_path: str,
+                     model: str = DEFAULT_MODEL,
+                     temperature: float = DEFAULT_TEMPERATURE,
+                     n_trials: int = 1,
+                     use_cache: bool = True,
+                     cache_dir: str = CACHE_DIR_DEFAULT,
+                     force_refresh: bool = False) -> Dict[str, Any]:
+    """
+    Parse an assignment file into tasks. Supports disk cache so repeated runs
+    won't call the LLM again for the same spec+model unless force_refresh=True.
+
+    Returns: {"tasks": [ ... ]}
+    """
+    # 1) read spec
     spec = Path(assignment_path).read_text(encoding="utf-8")
+
+    # 2) cache check
+    key = _cache_key(spec, model)
+    cache_path = _cache_file_for(key, cache_dir)
+    if use_cache and not force_refresh and cache_path.exists():
+        cached = _load_cache(cache_path)
+        if cached:
+            # return validated cached result
+            return validate_tasks(cached)
+
+    # 3) build prompts
     system = (
         "You extract a STRICT JSON schema of tasks from an academic assignment. "
         "Return ONLY JSON. No explanations. Ensure valid UTF-8 and correct escaping."
@@ -162,10 +215,27 @@ def parse_assignment(assignment_path: str, model: str = DEFAULT_MODEL,
         f"{spec}\n-----\n"
         "Return ONLY JSON."
     )
+
+    # 4) LLM calls (one or more trials), normalization, merge
     trials: List[Dict[str, Any]] = []
     for _ in range(max(1, n_trials)):
         data = llm_call_json(system, user, model=model, temperature=temperature)
         tasks = [_normalize_task(t) for t in data.get("tasks", []) if isinstance(t, dict)]
         trials.append({"tasks": tasks})
+
     merged = _merge_trials(trials)
-    return validate_tasks(merged)
+    validated = validate_tasks(merged)
+
+    # 5) save to cache (metadata only in file, not returned to pipeline)
+    if use_cache:
+        meta = {
+            "created_at": int(time.time()),
+            "model": model,
+            "temperature": temperature,
+            "schema_version": SCHEMA_VERSION,
+            "assignment_sha256": key,
+            "source_file": str(Path(assignment_path).resolve()),
+        }
+        _save_cache(cache_path, validated, meta)
+
+    return validated
