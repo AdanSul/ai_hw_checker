@@ -16,7 +16,7 @@ DEFAULT_MODEL = os.getenv("AHC_PARSE_MODEL", "gpt-4o-mini")
 DEFAULT_TEMPERATURE = float(os.getenv("AHC_PARSE_TEMPERATURE", "0.0"))
 
 # store cached parses
-CACHE_DIR_DEFAULT = os.getenv("AHC_PARSE_CACHE_DIR", "outputs/cache/assignments")
+CACHE_DIR_DEFAULT = os.getenv("AHC_PARSE_CACHE_DIR", "outputs/cache")
 SCHEMA_VERSION = "tasks_v1" 
 
 _JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
