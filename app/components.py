@@ -8,6 +8,53 @@ import re
 
 from ahc.exporters import export_csv, export_jsonl
 
+import re
+import json, io
+import pandas as pd
+
+_TASK_SCORE_RE   = re.compile(r"^task(\d+)_score$")
+_TASK_FEED_RE    = re.compile(r"^task(\d+)_feedback$")
+_TASK_AI_RE      = re.compile(r"^task(\d+)_ai(?:_score)?$") 
+_BASE_ORDER      = ["student_id", "final_score", "ai_score"]  # will keep this order first
+
+def _task_sort_key(col: str) -> tuple[int, int, str]:
+    """
+    Sort key that puts task1_score, task1_feedback, task2_score, task2_feedback, ...
+    Non-task columns go to the end but we also keep BASE_ORDER first.
+    """
+    m = _TASK_SCORE_RE.match(col)
+    if m:
+        return (int(m.group(1)), 0, col)  # score before feedback
+    m = _TASK_FEED_RE.match(col)
+    if m:
+        return (int(m.group(1)), 1, col)
+    return (10**9, 99, col)  # everything else at the end
+
+def _order_task_columns(df: pd.DataFrame) -> pd.DataFrame:
+    cols = list(df.columns)
+
+    # ensure base columns appear first in the declared order (if present)
+    base = [c for c in _BASE_ORDER if c in cols]
+
+    # everything else (except base) sorted by task number, score then feedback
+    rest = [c for c in cols if c not in base]
+    rest_sorted = sorted(rest, key=_task_sort_key)
+
+    ordered = base + rest_sorted
+    return df.reindex(columns=ordered)
+
+def _add_ai_average_and_drop_per_task(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    If there are per-task AI columns like task1_ai or task1_ai_score, compute row-wise mean,
+    store it in 'ai_score', and drop the per-task AI columns.
+    If 'ai_score' already exists and no per-task AI columns exist, we keep it as is.
+    """
+    ai_cols = [c for c in df.columns if _TASK_AI_RE.match(c)]
+    if ai_cols:
+        df["ai_score"] = df[ai_cols].mean(axis=1).round(3)
+        df = df.drop(columns=ai_cols)
+    return df
+
 # ---------- Helpers (pure) ----------
 
 def student_num(s: str):
@@ -18,25 +65,55 @@ def student_num(s: str):
     m = re.search(r'(\d+)$', after)
     return m.group(1) if m else after
 
-def build_dataframe(results: list[dict], include_feedback: bool) -> pd.DataFrame:
-    """Flatten pipeline results -> wide DataFrame (pairs: taskX_score, taskX_feedback)."""
-    if not results:
-        return pd.DataFrame()
-    task_ids = [it["task"] for it in results[0]["results"]]
-    rows = []
+def build_dataframe(results: list[dict], include_feedback: bool = True) -> pd.DataFrame:
+    """
+    Builds a flat table for UI/CSV.
+    - student_id, final_score (0..100)
+    - optional ai_score (averaged if per-task AI cols exist)
+    - taskN_score and (optionally) taskN_feedback, ordered task1..taskN
+    """
+    rows: list[dict] = []
     for r in results:
-        row = {
-            "student_id": student_num(r.get("student_id")),
-            "final_score": round(float(r.get("final_score", 0.0)), 3),  # already 0..100
-            "ai_score": (r.get("ai_suspicion", {}) or {}).get("score"),
-        }
-        by_task = {it["task"]: it for it in r.get("results", [])}
-        for t in task_ids:
-            row[f"{t}_score"] = by_task.get(t, {}).get("score")
+        row: dict = {}
+        # student id -> keep only trailing digits if it looks like "hw2-2001"
+        sid = str(r.get("student_id", "")).strip()
+        m = re.search(r"(\d+)$", sid)
+        row["student_id"] = m.group(1) if m else sid
+
+        # final score already normalized 0..100 in the pipeline
+        row["final_score"] = r.get("final_score", 0)
+
+        # per-task fields
+        for t in r.get("results", []):
+            tid_raw = str(t.get("task") or t.get("task_id") or "")
+            m = re.search(r"(\d+)", tid_raw)
+            tid = f"task{m.group(1)}" if m else tid_raw or "task1"
+
+            row[f"{tid}_score"] = t.get("score", 0)
             if include_feedback:
-                row[f"{t}_feedback"] = (by_task.get(t, {}) or {}).get("feedback", "")
+                row[f"{tid}_feedback"] = t.get("feedback", "")
+
+            # If your detector adds per-task AI columns, you can set them here, e.g.:
+            # if "ai" in t: row[f"{tid}_ai"] = t["ai"]
+
+        # if the pipeline already computed a single ai_score, copy it in
+        if "ai_score" in r:
+            row["ai_score"] = r["ai_score"]
+
         rows.append(row)
-    return pd.DataFrame(rows)
+
+    df = pd.DataFrame(rows)
+
+    # If there are any per-task AI columns, average them into 'ai_score' and drop the per-task cols
+    df = _add_ai_average_and_drop_per_task(df)
+
+    # Order columns: student_id, final_score, ai_score, then task1_score, task1_feedback, task2_...
+    df = _order_task_columns(df)
+
+    # Fill NaNs (e.g., missing feedback) so CSVs are clean
+    df = df.fillna("")
+    return df
+
 
 def extract_zip_to_temp(uploaded_file) -> Path:
     """Save uploaded ZIP to a temp dir and extract. Returns submissions root Path."""
@@ -47,14 +124,19 @@ def extract_zip_to_temp(uploaded_file) -> Path:
         z.extractall(temp_dir / "subs")
     return temp_dir / "subs"
 
-def bytes_of_csv_jsonl(results: list[dict], include_feedback: bool):
-    """Export to bytes (no permanent disk writes) for Streamlit download buttons."""
-    tmp = Path(tempfile.mkdtemp(prefix="ahc_dl_"))
-    csv_p = tmp / "grades.csv"
-    jsonl_p = tmp / "grades.jsonl"
-    export_csv(results, csv_p, include_feedback=include_feedback, add_class_avg=True)
-    export_jsonl(results, jsonl_p)
-    return csv_p.read_bytes(), jsonl_p.read_bytes()
+def bytes_of_csv_jsonl(results: list[dict], include_feedback: bool = True) -> tuple[bytes, bytes]:
+    df = build_dataframe(results, include_feedback=include_feedback)
+    csv_buf = io.StringIO()
+    df.to_csv(csv_buf, index=False)
+    csv_bytes = csv_buf.getvalue().encode("utf-8")
+
+    jsonl_buf = io.StringIO()
+    for r in results:
+        jsonl_buf.write(json.dumps(r, ensure_ascii=False) + "\n")
+    jsonl_bytes = jsonl_buf.getvalue().encode("utf-8")
+
+    return csv_bytes, jsonl_bytes
+
 
 # ---------- UI pieces ----------
 
