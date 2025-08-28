@@ -1,0 +1,375 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fcf4f5;
+    color: #4a4a4a;
+    margin: 0;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    color: #7a5252;
+    font-size: 3em;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+.circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+}
+
+.circle-inner {
+    width: 250px;
+    height: 250px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #f0e0e0;
+}
+
+.circle-inner:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+}
+
+.icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 5px;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.icon svg path {
+    fill: #c99696;
+    stroke: none;
+}
+
+h4 {
+    margin: 0;
+    font-size: 1.4em;
+    color: #7a5252;
+    font-weight: 500;
+}
+
+small {
+    font-size: 0.95em;
+    color: #a37c7c;
+    margin-top: 5px;
+}
+
+.drag-text {
+    font-size: 0.85em;
+    color: #a37c7c;
+    margin-top: 10px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 25px 35px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    width: 90%;
+    max-width: 700px;
+    box-sizing: border-box;
+    border: 1px solid #f0e0e0;
+}
+
+/* === Settings Card Layout === */
+.settings {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.settings-header {
+    grid-column: 1 / -1;
+}
+
+.settings h3 {
+    font-size: 1.5em;
+    color: #4a4a4a;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+}
+
+.settings-content-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f8f0f1;
+    border-radius: 12px;
+}
+
+.settings-group h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    color: #6a4651;
+    font-weight: 600;
+    border-bottom: 1px solid #d1b4b4;
+    padding-bottom: 8px;
+}
+
+/* === Input and Select Field Styling === */
+.settings-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.settings-item label, .checkbox-group p {
+    font-weight: 500;
+    color: #4a4a4a;
+    font-size: 1.1em;
+}
+
+.settings select {
+    padding: 10px 15px;
+    border: 1.5px solid #d1b4b4;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #4a4a4a;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23885a6a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+    flex: 1;
+    min-width: 150px;
+}
+
+/* === Temperature Slider and Number Input === */
+.temp-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.temp-input-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+#temp-range {
+    -webkit-appearance: none;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+#temp-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #885a6a;
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+#temp-number {
+    padding: 8px 10px;
+    width: 50px;
+    text-align: center;
+    border: 1.5px solid #d1b4b4;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #4a4a4a;
+    font-size: 1em;
+    outline: none;
+}
+
+/* === Checkbox Styling (Custom Toggle) === */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #885a6a;
+}
+
+input:checked + .slider:before {
+    transform: translateX(21px);
+}
+
+/* Regular checkbox */
+#fb {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #d1b4b4;
+    background-color: #fff;
+    cursor: pointer;
+    vertical-align: middle;
+    position: relative;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+#fb:checked {
+    background-color: #885a6a;
+    border-color: #885a6a;
+}
+
+#fb:checked::after {
+    content: '✓';
+    font-size: 16px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* === Button Styling === */
+.primary {
+    display: block;
+    margin: 0 auto;
+    width: 90%;
+    max-width: 300px;
+    background-color: #885a6a;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    font-weight: 600;
+    box-shadow: 0 6px 15px rgba(136, 90, 106, 0.25);
+}
+
+.primary:hover {
+    background-color: #6a4651;
+    transform: translateY(-2px);
+}
+
+.ghost {
+    background-color: #fff;
+    color: #885a6a;
+    border: 1.5px solid #d1b4b4;
+    padding: 8px 16px;
+    max-width: 120px;
+    border-radius: 12px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.05);
+}
+
+.ghost:hover {
+    background-color: #f8f8f8;
+    transform: translateY(-2px);
+}
+
+.export-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-self: center;
+}
+
+@media (max-width: 800px) {
+    .settings-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tasks{margin-top:10px; display:grid; gap:10px}
+.task{border:1px solid #f3d5dd; border-radius:12px; padding:10px; background:#fff}
+.task-head{font-weight:600; margin-bottom:6px}
+.task-fb pre{white-space:pre-wrap; margin:6px 0 0 0; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
+.student-cell{cursor:pointer; text-decoration:underline}
+.student-cell:hover{opacity:.85}
