@@ -1,3 +1,8 @@
+:root{
+  --block-w: 800px;   /* רוחב כל הבלוקים */
+  --table-w: 800px;   /* רוחב הטבלה בתוך הכרטיס הלבן */
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fcf4f5;
@@ -25,7 +30,7 @@ h1 {
     justify-content: center;
     gap: 50px;
     width: 100%;
-    max-width: 800px;
+    max-width: var(--block-w);
     margin-top: 20px;
 }
 
@@ -95,15 +100,22 @@ small {
 }
 
 .card {
-    background-color: #fff;
+    background-color: #ffffff;
     border-radius: 16px;
     padding: 25px 35px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
     width: 90%;
-    max-width: 700px;
+    max-width: var(--block-w);
     box-sizing: border-box;
     border: 1px solid #f0e0e0;
 }
+
+#summary {
+  width: var(--block-w);       
+  max-width: var(--block-w);
+  margin-inline: auto;       
+}
+
 
 /* === Settings Card Layout === */
 .settings {
@@ -395,7 +407,7 @@ input:checked + .slider:before {
 .status { display: none; }
 .status.show { display: block; }
 
-/* תגית AI קטנה ליד ai_score */
+/* ===== AI badge next to ai_score ===== */
 .badge {
   padding: .18rem .55rem;
   border-radius: 999px;
@@ -406,27 +418,80 @@ input:checked + .slider:before {
 .badge.mid  { background:#fff6df; color:#856300; }
 .badge.high { background:#ffe5ea; color:#a22b48; }
 
-/* ===== toggled results area ===== */
+
+/* ===== Results table block ===== */
 .table-wrap.hidden { display: none; }
-.table-wrap { width: 90%; max-width: 1100px; overflow-x: auto; margin-top: 10px; }
-
-/* table layout + sticky header/first-col */
-.table table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-.table th, .table td {
-  background: #fff; padding: 10px; border-top: 1px solid #f3d5dd; border-bottom: 1px solid #f3d5dd;
-  vertical-align: top;
+.table-wrap {
+  width: var(--block-w);
+  max-width: var(--block-w);
+  margin: 16px auto 32px;
+  overflow: auto;
 }
-.table th { font-weight: 700; position: sticky; top: 0; background: #fff; z-index: 2; }
-.table td:first-child, .table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; }
 
-/* feedback clamp with more/less */
-.feedback.clamp {
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+.table-wrap .card {
+  padding: 0;
+  border: 1px solid #f0e0e0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  background: #fff;
   overflow: hidden;
+  width: 100%; 
+  max-width: 100%;
 }
-.feedback.expand { -webkit-line-clamp: unset; }
-.cell-more { color: #885a6a; cursor: pointer; font-size: .9rem; margin-top: 6px; display: inline-block; }
 
-/* student id clickable */
-.student-cell { cursor: pointer; text-decoration: underline; }
+.table-wrap table {
+  width: 100%; 
+  min-width: var(--table-w); 
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Header */
+.table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #faeef1;       /* soft pink */
+  color: #6a4651;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1dbe1;
+}
+
+/* Cells */
+.table-wrap tbody td {
+  background: #fff;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5e2e7;
+  vertical-align: middle;
+}
+
+/* Zebra + hover */
+.table-wrap tbody tr:nth-child(even) td { background: #fff7f9; }
+.table-wrap tbody tr:hover td           { background: #ffeef3; }
+
+/* Sticky first column (student_id) */
+.table-wrap th:first-child,
+.table-wrap td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: inherit;
+}
+
+/* Rounded corners */
+.table-wrap thead th:first-child { border-top-left-radius: 16px; }
+.table-wrap thead th:last-child  { border-top-right-radius: 16px; }
+.table-wrap tbody tr:last-child td:first-child { border-bottom-left-radius: 16px; }
+.table-wrap tbody tr:last-child td:last-child  { border-bottom-right-radius: 16px; }
+
+/* Center numeric columns (everything except student_id) */
+.table-wrap th:nth-child(n+2),
+.table-wrap td:nth-child(n+2) { text-align: center; }
+
+/* Clickable student id */
+.student-cell { cursor: pointer; text-decoration: underline; color:#6a4651; font-weight:600; }
 .student-cell:hover { opacity: .85; }

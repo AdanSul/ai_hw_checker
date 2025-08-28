@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "created_at": 1756393278,
+    "model": "gpt-3.5-turbo-0125",
+    "temperature": 0.0,
+    "schema_version": "tasks_v1",
+    "assignment_sha256": "8bad959bfaaea1d2edc6772058a8afba48fc574f8d3de407c494f9e4f7aa4a4f",
+    "source_file": "C:\\Users\\adans\\AppData\\Local\\Temp\\ahc_api_f3t8vcef\\README.md"
+  },
+  "tasks": [
+    {
+      "task_id": "task1",
+      "description": "Develop a simple calculator supporting addition, subtraction, and parentheses. Write two functions: check_valid(expression) and evaluate(expression).",
+      "expected_filename": "task1.py",
+      "type": "code",
+      "lang": "Python",
+      "points": 10,
+      "examples": [
+        {
+          "input": "9+8+3-(8+1",
+          "output": "Expression is not valid! Please try again: 1 - (4-3) + 3\n1-(4-3)+3 = 3"
+        },
+        {
+          "input": "(2+3)-(4+7)-(3-5)-(9-6)-(10-2)",
+          "output": "Valid and equals -15"
+        }
+      ]
+    },
+    {
+      "task_id": "task2",
+      "description": "Implement an automatic game similar to 'An dan dinu' where participants stand in a circle and take steps based on a number.",
+      "expected_filename": "task2.py",
+      "type": "code",
+      "lang": "Python",
+      "points": 15,
+      "examples": [
+        {
+          "input": "Alice Bob Charlie Dana 6",
+          "output": "Eliminated order: ['Bob', 'Alice', 'Dana']\nWinner: Charlie"
+        },
+        {
+          "input": "Alice Bob Charlie Dana Eli 3",
+          "output": "Eliminated order: ['Charlie', 'Alice', 'Eli', 'Bob']\nWinner: Dana"
+        }
+      ]
+    },
+    {
+      "task_id": "task3",
+      "description": "Implement RSA encryption and decryption system. Generate keys, encrypt and decrypt messages.",
+      "expected_filename": "task3.py",
+      "type": "code",
+      "lang": "Python",
+      "points": 20,
+      "examples": ""
+    },
+    {
+      "task_id": "task4",
+      "description": "Implement functions to calculate the Tribonacci sequence recursively and iteratively. Include a function to run and time both implementations.",
+      "expected_filename": "task4.py",
+      "type": "code",
+      "lang": "Python",
+      "points": 15,
+      "examples": ""
+    }
+  ]
+}
