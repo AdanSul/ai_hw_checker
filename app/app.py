@@ -13,7 +13,7 @@ import tempfile
 import traceback
 
 from ahc.pipeline import run_full_pipeline
-# NOTE: local imports (no "app." prefix)
+
 from components import (
     build_dataframe,
     extract_zip_to_temp,
