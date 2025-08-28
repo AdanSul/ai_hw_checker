@@ -371,5 +371,62 @@ input:checked + .slider:before {
 .task{border:1px solid #f3d5dd; border-radius:12px; padding:10px; background:#fff}
 .task-head{font-weight:600; margin-bottom:6px}
 .task-fb pre{white-space:pre-wrap; margin:6px 0 0 0; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
-.student-cell{cursor:pointer; text-decoration:underline}
-.student-cell:hover{opacity:.85}
+
+/* מציג שם קובץ אחרי העלאה (✓ filename) */
+.drag-text.ok {
+  color: #1b7d4d;
+  font-weight: 600;
+}
+
+/* כפתורי הורדה מנוטרלים עד שיש קבצים */
+.ghost.disabled {
+  pointer-events: none;
+  opacity: .5;
+}
+
+/* תיבת שגיאה */
+.error {
+  color: #a22b48;
+  border-color: #f3b4c1;
+  background: #ffe9ee;
+}
+
+/* פס סטטוס פשוט (מוסתר/מוצג) */
+.status { display: none; }
+.status.show { display: block; }
+
+/* תגית AI קטנה ליד ai_score */
+.badge {
+  padding: .18rem .55rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: .85rem;
+}
+.badge.low  { background:#eaf9f1; color:#1b7d4d; }
+.badge.mid  { background:#fff6df; color:#856300; }
+.badge.high { background:#ffe5ea; color:#a22b48; }
+
+/* ===== toggled results area ===== */
+.table-wrap.hidden { display: none; }
+.table-wrap { width: 90%; max-width: 1100px; overflow-x: auto; margin-top: 10px; }
+
+/* table layout + sticky header/first-col */
+.table table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.table th, .table td {
+  background: #fff; padding: 10px; border-top: 1px solid #f3d5dd; border-bottom: 1px solid #f3d5dd;
+  vertical-align: top;
+}
+.table th { font-weight: 700; position: sticky; top: 0; background: #fff; z-index: 2; }
+.table td:first-child, .table th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; }
+
+/* feedback clamp with more/less */
+.feedback.clamp {
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.feedback.expand { -webkit-line-clamp: unset; }
+.cell-more { color: #885a6a; cursor: pointer; font-size: .9rem; margin-top: 6px; display: inline-block; }
+
+/* student id clickable */
+.student-cell { cursor: pointer; text-decoration: underline; }
+.student-cell:hover { opacity: .85; }
