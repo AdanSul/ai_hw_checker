@@ -79,7 +79,7 @@ async def run(
 
     return JSONResponse({
         "run_id": run_id,
-        "results": results,     # עדיין מחזירים כדי לבנות טבלה מיד
+        "results": results,   
         "summary": summary,
         "download": {
             "csv": f"/download/{run_id}/csv",
