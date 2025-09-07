@@ -44,7 +44,7 @@ def _sanitize_json_text(s: str) -> str:
 
 def llm_call_json(system_prompt: str, user_prompt: str,
                   model: str | None = None, temperature: float | None = None) -> Dict[str, Any]:
-    """Call OpenAI in JSON mode, then safely load JSON (with sanitize fallback)."""
+    """Call OpenAI in JSON mode."""
     chat = ChatOpenAI(
         model=model or DEFAULT_MODEL,
         temperature=temperature if temperature is not None else DEFAULT_TEMPERATURE,
@@ -175,7 +175,6 @@ def _load_cache(cache_path: Path) -> Dict[str, Any] | None:
     return None
 
 # -------------------- PUBLIC API --------------------
-
 def parse_assignment(assignment_path: str,
                      model: str = DEFAULT_MODEL,
                      temperature: float = DEFAULT_TEMPERATURE,
@@ -186,8 +185,6 @@ def parse_assignment(assignment_path: str,
     """
     Parse an assignment file into tasks. Supports disk cache so repeated runs
     won't call the LLM again for the same spec+model unless force_refresh=True.
-
-    Returns: {"tasks": [ ... ]}
     """
     # 1) read spec
     spec = Path(assignment_path).read_text(encoding="utf-8")
@@ -202,18 +199,39 @@ def parse_assignment(assignment_path: str,
             return validate_tasks(cached)
 
     # 3) build prompts
+    # system = (
+    #     "You extract a STRICT JSON schema of tasks from an academic assignment. "
+    #     "Return ONLY JSON. No explanations. Ensure valid UTF-8 and correct escaping."
+    # )
     system = (
-        "You extract a STRICT JSON schema of tasks from an academic assignment. "
-        "Return ONLY JSON. No explanations. Ensure valid UTF-8 and correct escaping."
+        "You are a specialized text-to-JSON extractor."
+        "Your sole function is to parse an academic assignment specification and output a strict JSON array of tasks."
+        "You must never generate any prose, explanations, or conversational text."
+        "Your output must be a single, valid JSON object, formatted with UTF-8 encoding and correctly escaped."
     )
+    # user = (
+    #     "Extract tasks from the assignment spec below.\n"
+    #     "Return JSON with a single key 'tasks': a list of objects.\n"
+    #     "Each task MUST include: task_id, description, expected_filename (or infer), "
+    #     "type ('code'|'short_answer'|'math_proof'), lang (when type='code'), points (int), examples (optional).\n\n"
+    #     "Assignment spec:\n-----\n"
+    #     f"{spec}\n-----\n"
+    #     "Return ONLY JSON."
+    # )
     user = (
-        "Extract tasks from the assignment spec below.\n"
-        "Return JSON with a single key 'tasks': a list of objects.\n"
-        "Each task MUST include: task_id, description, expected_filename (or infer), "
-        "type ('code'|'short_answer'|'math_proof'), lang (when type='code'), points (int), examples (optional).\n\n"
-        "Assignment spec:\n-----\n"
+        "Extract tasks from the assignment specification provided below.\n"
+        "Your response must be a single JSON object with a key 'tasks', which is an array of task objects.\n"
+        "Each task object MUST contain the following fields:\n"
+        "- task_id: A unique identifier for the task (string).\n"
+        "- description: A detailed description of the task (string).\n"
+        "- expected_filename: The expected filename for submissions (string). If not specified, infer it as '<task_id>.py'.\n"
+        "- type: The type of task, which can be one of 'code', 'short_answer', or 'math_proof' (string).\n"
+        "- lang: The programming language for code tasks (string). Required if type is 'code'.\n"
+        "- points: The maximum points achievable for the task (integer).\n"
+        "- examples: Optional examples or additional information about the task (string, optional).\n\n"
+        "Assignment specification:\n-----\n"
         f"{spec}\n-----\n"
-        "Return ONLY JSON."
+        "Remember, your output must be valid JSON without any additional text or explanations."
     )
 
     # 4) LLM calls (one or more trials), normalization, merge

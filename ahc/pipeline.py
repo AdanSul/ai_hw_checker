@@ -20,8 +20,10 @@ def run_full_pipeline(assignment_path: str, submissions_dir: str, model: str, te
 
     # בניית peer-corpus
     peer_codes = [r["codes_concat"] for r in prelim]
-    # כאן אפשר גם לטעון baseline מתוך data/ai_baselines/<assignment_id> אם בנוי
-    baseline_ai = []  # TODO: למלא כשיהיה
+    
+
+    #---------- TO DO -------------
+    baseline_ai = []  # TODO
 
     # הוספת ai_suspicion לכל סטודנט
     results = []
