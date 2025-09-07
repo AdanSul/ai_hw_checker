@@ -3,12 +3,12 @@ from pathlib import Path
 from collections import defaultdict, Counter
 from typing import Dict, List, Any
 from json import JSONDecodeError
-
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
-
 from ahc.validators import validate_tasks
+import pypdf
+import docx
 
 load_dotenv()
 
@@ -21,6 +21,42 @@ SCHEMA_VERSION = "tasks_v1"
 
 _JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
 _BRACES     = re.compile(r"(\{.*\})", re.DOTALL)
+
+
+def _read_file_as_text(file_path: str) -> str:
+    """Reads a file of various types and returns its text content."""
+    path = Path(file_path)
+    extension = path.suffix.lower()
+
+    if not path.is_file():
+        raise FileNotFoundError(f"The file {file_path} does not exist.")
+
+    if extension == ".pdf":
+        print("Reading PDF file:", file_path)
+        try:
+            reader = pypdf.PdfReader(path)
+            text_content = ""
+            for page in reader.pages:
+                text_content += page.extract_text() or ""
+            return text_content
+        except Exception as e:
+            raise IOError(f"Failed to read PDF file {file_path}: {e}")
+
+    elif extension == ".docx":
+        print("Reading DOCX file:", file_path)
+        try:
+            doc = docx.Document(path)
+            return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+        except Exception as e:
+            raise IOError(f"Failed to read DOCX file {file_path}: {e}")
+
+    # Default for text-based files (.md, .txt, etc.)
+    else:
+        print("Reading text file:", file_path)
+        try:
+            return path.read_text(encoding="utf-8")
+        except Exception as e:
+            raise IOError(f"Failed to read text file {file_path}: {e}")
 
 def _extract_json_block(text: str) -> str | None:
     m = _JSON_FENCE.search(text)
@@ -187,7 +223,7 @@ def parse_assignment(assignment_path: str,
     won't call the LLM again for the same spec+model unless force_refresh=True.
     """
     # 1) read spec
-    spec = Path(assignment_path).read_text(encoding="utf-8")
+    spec = _read_file_as_text(assignment_path)
 
     # 2) cache check
     key = _cache_key(spec, model)
