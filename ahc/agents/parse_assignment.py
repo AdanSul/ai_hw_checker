@@ -116,6 +116,7 @@ def _normalize_task(t: Dict[str, Any]) -> Dict[str, Any]:
     """
     Canonicalize fields, coerce types, and set sensible defaults.
     """
+    # Standardize the task ID
     if "task_id" not in t:
         if "task_number" in t:
             t["task_id"] = t["task_number"]
@@ -123,25 +124,42 @@ def _normalize_task(t: Dict[str, Any]) -> Dict[str, Any]:
             t["task_id"] = t["id"]
         else:
             t["task_id"] = "task1"
+    
     tid = str(t["task_id"]).strip()
     if re.fullmatch(r"\d+", tid):
         tid = f"task{tid}"
     t["task_id"] = tid
 
+    # Set default values for description and examples
     t.setdefault("description", "")
     t.setdefault("examples", "")
+    
+    # Standardize the task type
     t.setdefault("type", "code")
-    t.setdefault("lang", "python")
+    
+    # Ensure type is a string and handle case variations
+    t["type"] = str(t["type"]).strip().lower()
 
-    fname = t.get("expected_filename")
-    if not isinstance(fname, str) or not fname.strip():
-        t["expected_filename"] = f"{t['task_id']}.py"
+    # Handle language and filename based on task type
+    if t["type"] == "code":
+        t.setdefault("lang", "python")
+        fname = t.get("expected_filename")
+        if not isinstance(fname, str) or not fname.strip():
+            t["expected_filename"] = f"{t['task_id']}.py"
+        else:
+            t["expected_filename"] = fname.strip()
     else:
-        t["expected_filename"] = fname.strip()
+        # Remove keys not relevant for non-code tasks
+        t.pop("expected_filename", None)
+        t.pop("lang", None)
+
+    # Coerce points to an integer with a default of 10
     t["points"] = _to_int(t.get("points", 10), default=10)
-    for k in ("task_id", "description", "expected_filename"):
+    
+    # Strip leading/trailing whitespace from string fields
+    for k in ("task_id", "description"):
         if isinstance(t.get(k), str):
-            t[k] = t[k].strip()
+            t[k] = t[k].strip() 
     return t
 
 def _merge_trials(trials: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -149,32 +167,49 @@ def _merge_trials(trials: List[Dict[str, Any]]) -> Dict[str, Any]:
     for parsed in trials:
         for t in parsed.get("tasks", []):
             try:
+                # Normalize each task first
                 t = _normalize_task(dict(t))
                 if "task_id" in t and "description" in t:
                     variants[t["task_id"]].append(t)
             except Exception:
                 continue
+
     merged: list[Dict[str, Any]] = []
     for tid, items in variants.items():
-        key_counts = Counter(
-            (it["description"], it.get("expected_filename",""), it.get("type","code"), it.get("lang","python"))
-            for it in items
-        )
-        if not key_counts:
+        if not items:
             continue
-        best_key, _ = max(key_counts.items(), key=lambda kv: (kv[1], len(kv[0][0])))
-        desc, fname, typ, lang = best_key
+
+        # Find the most common variant for description, type, and points
+        desc_counts = Counter(it["description"] for it in items)
+        best_desc = desc_counts.most_common(1)[0][0]
+
+        type_counts = Counter(it["type"] for it in items)
+        best_type = type_counts.most_common(1)[0][0]
+
         pts_counts = Counter(int(it.get("points", 10)) for it in items)
         points = pts_counts.most_common(1)[0][0] if pts_counts else 10
-        merged.append({
+
+        # Build the new task dictionary
+        new_task = {
             "task_id": tid,
-            "description": desc,
-            "expected_filename": fname or f"{tid}.py",
-            "type": typ,
-            "lang": lang,
+            "description": best_desc,
+            "type": best_type,
             "points": points,
-            "examples": next((it.get("examples","") for it in items if it.get("examples")), "")
-        })
+            "examples": next((it.get("examples", "") for it in items if it.get("examples")), "")
+        }
+
+        if best_type == "code":
+            lang_counts = Counter(it.get("lang", "python") for it in items)
+            best_lang = lang_counts.most_common(1)[0][0]
+            
+            filename_counts = Counter(it.get("expected_filename", f"{tid}.py") for it in items)
+            best_filename = filename_counts.most_common(1)[0][0]
+
+            new_task["lang"] = best_lang
+            new_task["expected_filename"] = best_filename
+
+        merged.append(new_task)
+
     def _tid_key(task_id: str):
         s = str(task_id)
         m = re.search(r"(\d+)", s)
@@ -184,7 +219,6 @@ def _merge_trials(trials: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {"tasks": merged}
 
 # -------------------- DISK CACHE HELPERS --------------------
-
 def _cache_key(spec_text: str, model: str) -> str:
     """Stable key for the assignment spec + model + schema version."""
     h = hashlib.sha256()
@@ -261,7 +295,7 @@ def parse_assignment(assignment_path: str,
         "- task_id: A unique identifier for the task (string).\n"
         "- description: A detailed description of the task (string).\n"
         "- expected_filename: The expected filename for submissions (string). If not specified, infer it as '<task_id>.py'.\n"
-        "- type: The type of task, which can be one of 'code', 'short_answer', or 'math_proof' (string).\n"
+        "- type: The type of task, which can be 'code', or 'mathematics' (string).\n"
         "- lang: The programming language for code tasks (string). Required if type is 'code'.\n"
         "- points: The maximum points achievable for the task (integer).\n"
         "- examples: Optional examples or additional information about the task (string, optional).\n\n"
