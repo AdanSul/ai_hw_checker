@@ -9,9 +9,7 @@ def run_full_pipeline(assignment_path: str, submissions_dir: str, model: str, te
     parsed = parse_assignment(assignment_path, model=model, temperature=0.0)
     tasks = parsed["tasks"]
 
-    # איסוף סטודנטים
     student_dirs = [p for p in glob.glob(str(Path(submissions_dir) / "*")) if Path(p).is_dir()]
-    # הערכה ראשונית + איסוף טקסט קוד לכל סטודנט
     prelim = []
     for sd in student_dirs:
         sid = Path(sd).name
