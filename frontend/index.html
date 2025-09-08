@@ -12,7 +12,7 @@
 
   <div class="row">
     <label class="circle">
-      <input id="assignment" type="file" accept=".md,.txt" hidden />
+      <input id="assignment" type="file" accept=".pdf,.docx,.md,.txt" hidden />
       <div class="circle-inner">
         <div class="icon">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
@@ -20,8 +20,7 @@
           </svg>
         </div>
         <h4>Assignment</h4>
-        <small>(md/txt)</small>
-        <!-- תווית סטטוס לקובץ -->
+        <small>(pdf/docx/md)</small>
         <div id="assignment-tag" class="drag-text">Drag & drop to upload</div>
       </div>
     </label>
@@ -36,7 +35,6 @@
         </div>
         <h4>Submissions</h4>
         <small>(zip)</small>
-        <!-- תווית סטטוס לקובץ -->
         <div id="subs-tag" class="drag-text">Drag & drop to upload</div>
       </div>
     </label>
@@ -59,12 +57,12 @@
             <option>gpt-3.5-turbo-0125</option>
           </select>
         </div>
-        <div class="settings-item temp-group">
+        <!-- <div class="settings-item temp-group">
           <label for="temp-number">Temperature</label>
           <div class="temp-input-group">
             <input type="number" id="temp-number" min="0" max="1" step="0.05" value="0.1" />
           </div>
-        </div>
+        </div> -->
         <div class="settings-item checkbox-group">
           <label class="switch">
             <input type="checkbox" id="batch" />
@@ -75,7 +73,7 @@
       </div>
 
       <div class="settings-group display-options">
-        <h4>Display & Export</h4>
+        <h4>Download Reports</h4>
         <!-- <div class="settings-item checkbox-group">
           <label for="fb">
             <input type="checkbox" id="fb" checked />

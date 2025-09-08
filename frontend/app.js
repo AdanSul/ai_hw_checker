@@ -1,6 +1,6 @@
 const API_BASE = "http://localhost:8000";
 let LAST_RESULTS = [];
-let TABLE_READY_HTML = ""; // cache rendered table HTML
+let TABLE_READY_HTML = ""; 
 
 // ---------- utils ----------
 function sanitize(s){ return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }

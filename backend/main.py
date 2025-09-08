@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-RUN_STORE: dict[str, dict] = {}  # run_id -> {"results":..., "csv": str, "jsonl": str}
+RUN_STORE: dict[str, dict] = {}  
 
 @app.get("/health")
 def health():
@@ -47,9 +47,9 @@ async def run(
     assignment: UploadFile = File(...),
     submissions: UploadFile = File(...),
     model: str = Form("gpt-4o-mini"),
-    temperature: float = Form(0.1),
+    # temperature: float = Form(0.1),
     show_feedback: bool = Form(True),
-    batch_per_student: bool = Form(False),
+    batch_per_student: bool = Form(True),
 ):
     os.environ["AHC_EVAL_BATCH"] = "1" if str(batch_per_student).lower() in ("1","true","yes","on") else "0"
 
@@ -59,7 +59,7 @@ async def run(
     z_path = tmp / (submissions.filename or "submissions.zip")
     z_path.write_bytes(await submissions.read())
 
-    results = _run_pipeline_flexible(a_path, z_path, model=model, temperature=float(temperature))
+    results = _run_pipeline_flexible(a_path, z_path, model=model, temperature=0.1)
     df = build_dataframe(results, include_feedback=bool(show_feedback))
 
     csv_buf = io.StringIO(); df.to_csv(csv_buf, index=False)

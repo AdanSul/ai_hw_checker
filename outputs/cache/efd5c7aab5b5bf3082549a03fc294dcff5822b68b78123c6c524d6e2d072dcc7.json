@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "created_at": 1757343834,
+    "model": "gpt-4o",
+    "temperature": 0.0,
+    "schema_version": "tasks_v1",
+    "assignment_sha256": "efd5c7aab5b5bf3082549a03fc294dcff5822b68b78123c6c524d6e2d072dcc7",
+    "source_file": "C:\\Users\\adans\\AppData\\Local\\Temp\\ahc_api_ly1amamf\\README.md"
+  },
+  "tasks": [
+    {
+      "task_id": "task1",
+      "description": "Develop a simple calculator supporting addition, subtraction, and parentheses. Implement two functions: check_valid(expression) to validate the expression and evaluate(expression) to recursively compute its value. The program should prompt the user for an expression, validate it, and compute its value using the two functions.",
+      "type": "code",
+      "points": 25,
+      "examples": "Enter your mathematical expression: 9+8+3-(8+1\nExpression is not valid! Please try again: 1 - (4-3) + 3\n1-(4-3)+3 = 3",
+      "lang": "python",
+      "expected_filename": "task1.py"
+    },
+    {
+      "task_id": "task2",
+      "description": "Write a function play_game that simulates a game where players are eliminated in a circle based on a step count. The function should return the order of elimination and the winner. The program should handle invalid input for steps and player count.",
+      "type": "code",
+      "points": 25,
+      "examples": "python task2.py Alice Bob Charlie Dana 6\nEliminated order: ['Bob', 'Alice', 'Dana']\nWinner: Charlie",
+      "lang": "python",
+      "expected_filename": "task2.py"
+    },
+    {
+      "task_id": "task3",
+      "description": "Implement an RSA encryption program with functions for key generation, message encryption, and decryption. The program should offer options to encrypt a message, decrypt a message, generate new keys, and exit.",
+      "type": "code",
+      "points": 25,
+      "examples": "Welcome to our encryption app!\nHere are your available options:\n1. Encrypt a new message\n2. Generate new keys\n3. Exit\nPlease choose an action: 1\nEnter your message: Hello\nEncrypted message is `24550831$17848346$21349315$21349315$25525994`",
+      "lang": "python",
+      "expected_filename": "task3.py"
+    },
+    {
+      "task_id": "task4",
+      "description": "Write two functions to compute the n-th Tribonacci number: tribonacci_recursive(n) using recursion and tribonacci_iterative(n) using iteration. Implement run_and_time(n) to measure and print the execution time of both functions.",
+      "type": "code",
+      "points": 25,
+      "examples": "Iterative Execution time: ## seconds\nF(10) = 149\nRecurise Execution time: ## seconds\nF(10) = 149",
+      "lang": "python",
+      "expected_filename": "task4.py"
+    }
+  ]
+}
