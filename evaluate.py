@@ -19,8 +19,8 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print(f">> Exporting to {out_dir} ...", flush=True)
-    export_csv(results, out_dir / "grades.csv", include_feedback=True, add_class_avg=True)
-    export_jsonl(results, out_dir / "grades.jsonl")
+    export_csv(results, out_dir / "grades1.csv", include_feedback=True, add_class_avg=True)
+    export_jsonl(results, out_dir / "grades1.jsonl")
 
     try:
         from statistics import mean

@@ -64,19 +64,27 @@ def _extract_score_and_feedback(response: str, max_points: int = 100) -> Tuple[i
 # ------------------------------------------------------------------ #
 
 def _eval_single_task(task: Dict[str, Any], student_code: str,
-                      model: str, temperature: float) -> Tuple[int, str]:
+                     model: str, temperature: float) -> Tuple[int, str]:
     """
     One LLM call (fallback path). Returns (score, feedback).
-    Uses a strict one-line format and a fairness-oriented rubric.
     """
-    
-    desc     = task.get("description", "")
+    desc = task.get("description", "")
     examples = task.get("examples", "")
+    task_type = task.get("type", "code")
+    task_lang = task.get("lang", "python")
+
+    # Dynamically build system message based on task type
+    if task_type == "code":
+        system_intro = f"You are a fair, supportive TA grading a SINGLE {task_lang} programming task."
+    elif task_type == "mathematics":
+        system_intro = "You are a fair, supportive TA grading a SINGLE mathematics task, such as a proof or problem solution."
+    else:
+        system_intro = "You are a fair, supportive TA grading a SINGLE written response or short answer task."
+    
     system_msg = (
-        "You are a fair, supportive TA grading a SINGLE Python task.\n"
-        "Do NOT run the code. Judge by reasoning only.\n"
+        f"{system_intro}\n"
         "Grade correctness and completeness against the task instructions and examples (if any).\n"
-        "Ignore style/formatting/naming unless they break correctness. Small cosmetic issues ≠ point deductions.\n"
+        "Ignore style/formatting/naming unless they break correctness. Small cosmetic issues do not cause point deductions.\n"
         "If the code is empty/missing/irrelevant, it can receive 0–49.\n"
         "Be concise, kind, and actionable.\n"
         "\n"
@@ -85,15 +93,20 @@ def _eval_single_task(task: Dict[str, Any], student_code: str,
         "Never include extra text. Never say 'As an AI'."
     )
 
+    # Dynamically format the student's submission based on task type
+    if task_type == "code":
+        submission_block = f"Student Code:\n```{task_lang}\n{student_code}\n```"
+    else:
+        submission_block = f"Student Submission:\n{student_code}"
+
     user_msg = (
         "Task (grade on a 0..100 scale):\n"
         f"{desc}\n\n"
         + (f"Examples (optional hints/tests):\n{examples}\n\n" if examples else "")
-        + "Student Code:\n```python\n"
-        f"{student_code}\n"
-        "```\n\n"
+        + f"{submission_block}\n\n"
         "Return exactly: Feedback: ... Score: <0..100>. No newlines, no extra words."
     )
+    
     response = llm_call_text(system_msg, user_msg, model=model, temperature=temperature)
     return _extract_score_and_feedback(response, max_points=100)
 
@@ -104,10 +117,7 @@ def _eval_single_task(task: Dict[str, Any], student_code: str,
 def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: float) -> List[Dict[str, Any]]:
     """
     Single LLM call that grades ALL provided tasks for one student.
-    Returns a list of {"task": task_id, "score": int, "feedback": str}.
-    Enforces strict JSON schema via response_format and clear rubric.
     """
-
     chat = ChatOpenAI(
         model=model or DEFAULT_MODEL,
         temperature=temperature,
@@ -118,50 +128,55 @@ def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: 
     )
 
     system_msg = SystemMessage(content=(
-        "You are a fair, supportive TA grading MULTIPLE Python tasks for a single student.\n"
-        "Do NOT run the code. Judge by reasoning only.\n"
+        "You are a fair, supportive TA grading MULTIPLE tasks for a single student.\n"
+        "Judge by reasoning only. Do not execute any provided mathematical statements.\n"
         "For EACH task, grade correctness and completeness against its instructions and examples (if any).\n"
         "Ignore style/formatting/naming unless they break correctness. Minor cosmetics do not reduce the score.\n"
-        "If a task's code is empty/missing/irrelevant, you may assign 0–49.\n"
+        "If a task's submission is empty/missing/irrelevant, you may assign 0–49.\n"
         "Keep feedback short, kind, and actionable.\n"
         "\n"
         "STRICT OUTPUT: return ONLY a JSON object with this exact shape:\n"
         "{\n"
-        '  "results": [\n'
-        '    {"task": "task1", "score": 0, "feedback": "short sentence (<= 25 words)"},\n'
-        '    {"task": "task2", "score": 0, "feedback": "short sentence (<= 25 words)"}\n'
-        "  ]\n"
+        '  "results": [\n'
+        '    {"task": "task1", "score": 0, "feedback": "specific sentence (<= 25 words)"},\n'
+        '    {"task": "task2", "score": 0, "feedback": "specific sentence (<= 25 words)"}\n'
+        "  ]\n"
         "}\n"
         "Rules:\n"
         "- Include exactly one object per provided task, preserving the given task IDs.\n"
         "- score is an integer 0..100.\n"
-        "- feedback is a single short sentence (<= 25 words). No line breaks, no code blocks.\n"
+        "- feedback is a single specific sentence (<= 25 words). No line breaks, no code blocks.\n"
         "- Do NOT include any keys other than 'results'.\n"
         "- Never say 'As an AI'."
     ))
-
-    # user message: one clearly delimited block per task
     blocks = []
     for t in tasks_with_code:
-        tid      = t.get("task_id", "")
-        desc     = t.get("description", "")
+        tid = t.get("task_id", "")
+        desc = t.get("description", "")
         examples = t.get("examples", "")
-        fname    = t.get("expected_filename", "")
-        code     = t.get("code", "")
+        task_type = t.get("type", "code")
+        task_lang = t.get("lang", "python")
+        student_code = t.get("code", "")
+        
+        if task_type == "code":
+            submission_block = f"Student Code ({task_lang}):\n```{task_lang}\n{student_code}\n```"
+        else:
+            submission_block = f"Student Submission ({task_type}):\n{student_code}"
+
         block = [
-            f"### {tid}",
-            f"Task:\n{desc}",
+            f"### Task: {tid} ({task_type})",
+            f"Instructions:\n{desc}",
         ]
         if examples:
             block.append(f"Examples:\n{examples}")
-        block.append(f"Student Code ({fname}):\n```python\n{code}\n```")
+        
+        block.append(submission_block)
         blocks.append("\n".join(block))
 
     user_msg = HumanMessage(content="\n\n".join(blocks) + "\n\nReturn ONLY the JSON object as specified.")
 
     raw = chat.invoke([system_msg, user_msg]).content
 
-    # Best-effort JSON parse
     try:
         data = json.loads(raw)
     except Exception:
@@ -182,10 +197,8 @@ def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: 
                 "feedback": str(item.get("feedback", "")).strip(),
             })
         except Exception:
-            # skip malformed items but continue processing others
             continue
     return out
-
 
 # ------------------------------------------------------------------ #
 #                  Public API: evaluate one student                  #
