@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "created_at": 1757261811,
+    "model": "gpt-4o-mini",
+    "temperature": 0.0,
+    "schema_version": "tasks_v1",
+    "assignment_sha256": "cd706bef5c5f35a2a2251bd56e4fab34ca2a9c672a3ff393db48dd17be432b21",
+    "source_file": "C:\\Users\\adans\\OneDrive\\שולחן העבודה\\Project\\python-submissions\\HW11.docx"
+  },
+  "tasks": [
+    {
+      "task_id": "task_1",
+      "description": "Show that if a language is not empty and is in a certain class, then every language in that class is complete.",
+      "type": "mathematics",
+      "points": 10,
+      "examples": ""
+    },
+    {
+      "task_id": "task_2",
+      "description": "Show that the class is closed under the star operation.",
+      "type": "mathematics",
+      "points": 10,
+      "examples": ""
+    },
+    {
+      "task_id": "task_3",
+      "description": "Define a solitaire game as follows: given a board with squares, each square contains a blue stone, a red stone, or no stone. The player's goal is to remove stones from the board such that: in each column, all remaining stones are of the same color (a column with no stones satisfies this), and in each row, there is at least one stone. It is not always possible to win (achieve the goal) in such a game, depending on the initial configuration. Show that this game is complete.",
+      "type": "mathematics",
+      "points": 10,
+      "examples": ""
+    },
+    {
+      "task_id": "bonus_task",
+      "description": "In this bonus question, we generalize the game 'Minesweeper' to a general graph. Given a graph, at each node, there is either a hidden mine or no mine. At each stage, the player chooses a node. If there is a mine, the player loses. Otherwise, the player learns the number of neighboring nodes that have mines. The player wins when they have traversed all the empty nodes. Now, define the mine consistency problem. Given a graph and a set of nodes marked with numbers, we need to check if there is a configuration of mines on the nodes such that every marked node has mines in its neighboring nodes. Formulate the mine consistency problem as a language and prove that it is in NP.",
+      "type": "mathematics",
+      "points": 15,
+      "examples": ""
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "created_at": 1757247549,
+    "created_at": 1757262000,
     "model": "gpt-4o-mini",
     "temperature": 0.0,
     "schema_version": "tasks_v1",
@@ -10,39 +10,39 @@
   "tasks": [
     {
       "task_id": "task1",
-      "description": "Build a simple calculator that supports addition, subtraction, and parentheses. Implement two functions: check_valid(expression) to validate the mathematical expression and evaluate(expression) to compute its value recursively. The program should read a mathematical expression from the user and print its value.",
-      "expected_filename": "task1.py",
-      "type": "programming",
-      "lang": "python",
+      "description": "Build a simple calculator that supports addition, subtraction, and parentheses. Implement two functions: check_valid(expression) to validate the mathematical expression and evaluate(expression) to compute its value recursively. The program should read a mathematical expression from the user, validate it, and print the computed result.",
+      "type": "code",
       "points": 25,
-      "examples": "Enter your mathematical expression: 9+8+3-(8+1\nExpression is not valid! Please try again: 1 - (4-3) + 3\n1-(4-3)+3 = 3"
+      "examples": "Enter your mathematical expression: 9+8+3-(8+1\nExpression is not valid! Please try again: 1 - (4-3) + 3\n1-(4-3)+3 = 3",
+      "lang": "python",
+      "expected_filename": "task1.py"
     },
     {
       "task_id": "task2",
-      "description": "Write a program that simulates a game where participants are eliminated in a circle based on a given number of steps. Implement a function play_game that takes a list of players and the number of steps, returning the order of elimination and the winner.",
-      "expected_filename": "task2.py",
-      "type": "programming",
-      "lang": "python",
+      "description": "Create a program that simulates a game where players are eliminated in a circle based on a given number of steps. Implement a function play_game that takes a list of players and the number of steps, returning the order of elimination and the winner.",
+      "type": "code",
       "points": 25,
-      "examples": "python task2.py Alice Bob Charlie Dana 6\nEliminated order: ['Bob', 'Alice', 'Dana']\nWinner: Charlie"
+      "examples": "python task2.py Alice Bob Charlie Dana 6\nEliminated order: ['Bob', 'Alice', 'Dana']\nWinner: Charlie",
+      "lang": "python",
+      "expected_filename": "task2.py"
     },
     {
       "task_id": "task3",
-      "description": "Create a program that implements RSA encryption. The program should generate encryption keys, allow the user to encrypt and decrypt messages, and generate new keys. The main logic should be in rsa.py, and the main program should be in task3.py.",
-      "expected_filename": "task3.py",
-      "type": "programming",
-      "lang": "python",
+      "description": "Develop a program that implements RSA encryption. The program should generate encryption keys, allow the user to encrypt and decrypt messages, and create new keys. The main logic should be in rsa.py, while the main program runs in task3.py.",
+      "type": "code",
       "points": 25,
-      "examples": "Welcome to our encryption app!\nHere are your available options:\n1. Encrypt a new message\n2. Generate new keys\n3. Exit\nPlease choose an action: 1\nEnter your message: Hello\nEncrypted message is `24550831$17848346$21349315$21349315$25525994`"
+      "examples": "Welcome to our encryption app!\nHere are your available options:\n1. Encrypt a new message\n2. Generate new keys\n3. Exit\nPlease choose an action: 1\nEnter your message: Hello\nEncrypted message is `24550831$17848346$21349315$21349315$25525994`",
+      "lang": "python",
+      "expected_filename": "task3.py"
     },
     {
       "task_id": "task4",
-      "description": "Implement the Tribonacci sequence recursively and iteratively. Write two functions: tribonacci_recursive(n) to compute the nth term recursively and tribonacci_iterative(n) to compute it iteratively. Additionally, implement run_and_time(n) to measure and print the execution time of both functions.",
-      "expected_filename": "task4.py",
-      "type": "programming",
-      "lang": "python",
+      "description": "Implement the Tribonacci sequence recursively and iteratively. Write two functions: tribonacci_recursive(n) to compute the nth term recursively and tribonacci_iterative(n) to compute it iteratively. Additionally, create a function run_and_time(n) to measure and print the execution time of both methods.",
+      "type": "code",
       "points": 25,
-      "examples": "Iterative Execution time: ## seconds\nF(10) = 149\nRecursive Execution time: ## seconds\nF(10) = 149"
+      "examples": "Iterative Execution time: ## seconds\nF(10) = 149\nRecursive Execution time: ## seconds\nF(10) = 149",
+      "lang": "python",
+      "expected_filename": "task4.py"
     }
   ]
 }
