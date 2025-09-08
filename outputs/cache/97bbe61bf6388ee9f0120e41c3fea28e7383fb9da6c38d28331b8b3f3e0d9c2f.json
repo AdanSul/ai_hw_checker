@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "created_at": 1757348081,
+    "model": "gpt-4o-mini",
+    "temperature": 0.0,
+    "schema_version": "tasks_v1",
+    "assignment_sha256": "97bbe61bf6388ee9f0120e41c3fea28e7383fb9da6c38d28331b8b3f3e0d9c2f",
+    "source_file": "C:\\Users\\adans\\AppData\\Local\\Temp\\ahc_api_nul1_stm\\README.md"
+  },
+  "tasks": [
+    {
+      "task_id": "task1",
+      "description": "Develop a visual simulation for a specified experiment involving random points and pixel updates in an image matrix.",
+      "type": "code",
+      "points": 10,
+      "examples": "Use plt.axis('off') and plt.imshow(pixels) to display the image.",
+      "lang": "python",
+      "expected_filename": "task1.py"
+    },
+    {
+      "task_id": "task2",
+      "description": "Analyze shopping carts from a provided history.txt file by implementing functions to process product names, load carts, get unique products, and count product frequencies.",
+      "type": "code",
+      "points": 10,
+      "examples": "Use plt.figure(figsize=(16,8)) to improve the display of the product frequency graph.",
+      "lang": "python",
+      "expected_filename": "task2.py"
+    },
+    {
+      "task_id": "task3",
+      "description": "Implement functions to convert between adjacency list and adjacency matrix representations of graphs, and draw the graph using the provided code snippet.",
+      "type": "code",
+      "points": 10,
+      "examples": "Ensure to save the graph image as task3_plot.png after drawing.",
+      "lang": "python",
+      "expected_filename": "task3.py"
+    },
+    {
+      "task_id": "task4",
+      "description": "Complete the implementation of a Tic Tac Toe game against the computer using the pygame module, including functions for game state management and AI move selection.",
+      "type": "code",
+      "points": 5,
+      "examples": "The AI can make random moves or use a more sophisticated algorithm.",
+      "lang": "python",
+      "expected_filename": "task4.py"
+    }
+  ]
+}

@@ -166,7 +166,7 @@ async function run(){
   const z   = document.getElementById("subs")?.files?.[0];
   const mdl = document.getElementById("model-select")?.value ?? "gpt-4o-mini";
   const tmp = document.getElementById("temp-number")?.value ?? 0.1;
-  const fb  = false; // no feedback columns in main table
+  const fb  = false; 
   const bat = document.getElementById("batch")?.checked ?? false;
 
   if(!a || !z){ showError("<b>Missing files:</b> Please choose both Assignment (md/txt) and Submissions (zip)."); return; }
@@ -182,7 +182,7 @@ async function run(){
     const fd=new FormData();
     fd.append("assignment", a); fd.append("submissions", z);
     fd.append("model", mdl); fd.append("temperature", tmp);
-    fd.append("show_feedback", fb ? "true" : "false");
+    fd.append("show_feedback", "true");
     fd.append("batch_per_student", bat ? "true" : "false");
 
     const res=await fetch(`${API_BASE}/run`, { method:"POST", body:fd });
