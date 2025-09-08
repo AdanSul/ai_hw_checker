@@ -22,17 +22,6 @@ def main():
     export_csv(results, out_dir / "grades1.csv", include_feedback=True, add_class_avg=True)
     export_jsonl(results, out_dir / "grades1.jsonl")
 
-    try:
-        from statistics import mean
-        totals = []
-        for r in results:
-            total_max = sum(it.get("max_points", 100) for it in r.get("results", [])) or 1
-            totals.append((r.get("final_score", 0.0) / total_max) * 100.0)
-        class_avg = round(mean(totals), 3) if totals else 0.0
-        print(f">> Class average (normalized to 100): {class_avg}", flush=True)
-    except Exception:
-        pass
-
     print(f">> Done. Wrote CSV+JSONL under: {out_dir.resolve()}", flush=True)
 
 if __name__ == "__main__":
