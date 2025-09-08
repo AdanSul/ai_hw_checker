@@ -18,14 +18,11 @@ def run_full_pipeline(assignment_path: str, submissions_dir: str, model: str, te
         res = evaluate_single_student(sid, sd, tasks, model=model, temperature=temperature)
         prelim.append(res)
 
-    # בניית peer-corpus
     peer_codes = [r["codes_concat"] for r in prelim]
     
-
     #---------- TO DO -------------
     baseline_ai = []  # TODO
 
-    # הוספת ai_suspicion לכל סטודנט
     results = []
     for i, r in enumerate(prelim):
         ai_sig = ai_copy_score(r["codes_concat"], peer_codes[:i] + peer_codes[i+1:], baseline_ai=baseline_ai)
