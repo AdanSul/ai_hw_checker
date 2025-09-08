@@ -69,7 +69,7 @@ def _eval_single_task(task: Dict[str, Any], student_code: str,
     One LLM call (fallback path). Returns (score, feedback).
     Uses a strict one-line format and a fairness-oriented rubric.
     """
-    print("seperate")
+    
     desc     = task.get("description", "")
     examples = task.get("examples", "")
     system_msg = (
@@ -107,7 +107,7 @@ def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: 
     Returns a list of {"task": task_id, "score": int, "feedback": str}.
     Enforces strict JSON schema via response_format and clear rubric.
     """
-    print("immmmm hereeeee")
+
     chat = ChatOpenAI(
         model=model or DEFAULT_MODEL,
         temperature=temperature,
@@ -190,7 +190,6 @@ def _eval_batch(tasks_with_code: List[Dict[str, Any]], model: str, temperature: 
 # ------------------------------------------------------------------ #
 #                  Public API: evaluate one student                  #
 # ------------------------------------------------------------------ #
-
 def evaluate_single_student(
     student_id: str,
     submission_dir: str,
@@ -207,7 +206,9 @@ def evaluate_single_student(
     if enable_batch is None:
         enable_batch = BATCH_ENABLED
 
-    # Read all codes upfront
+    # Enrich each task dict to also 
+    # hold task information, with an additional key: "code",
+    # which stores the content of the student's submitted file for that task.
     enriched: List[Dict[str, Any]] = []
     for t in tasks:
         tid     = t["task_id"]
@@ -215,18 +216,20 @@ def evaluate_single_student(
         code    = _read_file_safe(Path(submission_dir) / fname)
         enriched.append({**t, "code": code})
 
+
     results: List[Dict[str, Any]] = []
+    # This string is a compilation of all the student's code from all tasks, joined by newlines.
     codes_concat: str = "\n".join(e["code"] for e in enriched if e["code"])
 
-    # Prepare list for evaluation (no cache checks)
+    # Prepare list for evaluation
     pending: List[Dict[str, Any]] = []
     for e in enriched:
         if not e["code"]:
-            results.append({"task": e["task_id"], "score": 0, "feedback": "File missing or unreadable."})
+            results.append({"task": e["task_id"], "score": 0, "feedback": "File missing."})
         else:
             pending.append(e)
 
-    # Batch call (optional)
+    # Batch call
     if enable_batch and pending:
         try:
             batch_output = _eval_batch(pending, model=model, temperature=temperature)
