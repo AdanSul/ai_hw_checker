@@ -1,22 +1,65 @@
 # ai_hw_checker
 
-A modular, AI-powered grading system that mimics human checkers, provides personalized feedback, and lays the foundation for detecting plagiarism—including AI-generated content (future feature).
+
+AI Homework Checker is a **generic, extensible system** designed to automatically evaluate academic homework submissions.  
+The project started with **code assignments (Python)** but was built in a way that can easily extend to other domains.
+
+**Current Status:**
+
+✅ Assignment parsing and task extraction.
+
+✅ Student submission evaluation.
+
+✅ Validation and result export (JSON/CSV).
+
+⏳ AI plagiarism detection – coming soon!
+
+---
+
+## 🎬 Demo
+
+**Here’s a quick demo video of the system in action:**
+
+👉 [Watch the demo video](./demo/demo.mp4)
 
 
-### 🔍 Features
 
-- **AI-Based Evaluation:** Uses GPT to assess and generate human-like feedback.
+## ⚙️ Installation
 
-- **Assignment Parsing:** Supports Hebrew/English Markdown parsing using AI.
+Clone the repo and install dependencies:
 
-- **Student Submissions Handling:** Automatically processes structured student folders.
+```bash
+git clone https://github.com/<your-username>/ai_hw_checker.git
+cd ai_hw_checker
+pip install -r requirements.txt
+```
 
-- **CSV Export:** Saves feedback and scores per task for each student.
+
+## 🚀 How to Run
+
+You can run the system either from the command line or through the UI.
+
+**🔹Command Line:**
+```bash
+python evaluate.py
+```
+
+**🔹UI Mode:**
+
+Backend:
+```bash
+uvicorn backend.main:app --reload
+```
+
+Frontend:
+```bash
+cd frontend
+python -m http.server 9000
+```
 
 
 
-### ⚙️ Optimization: Caching & Parallelism
+## 🤝 Contributing
 
-- **Caching:** Avoids re-evaluating identical submissions. In HW1, 21 cached evaluations saved API costs.
-
-- **Parallel Execution:** Speeds up processing. HW1 (97 students) reduced from 13 minutes → 1 minute using 6 threads.
+Pull requests and feature suggestions are welcome.
+If you’d like to collaborate on expanding plagiarism detection or UI/UX, feel free to open an issue.
