@@ -22,8 +22,9 @@ The project started with **code assignments (Python)** but was built in a way th
 
 <video controls width="800" muted playsinline>
   <source src="https://media.githubusercontent.com/media/AdanSul/ai_hw_checker/main/demo/demo.mp4" type="video/mp4" />
-  If the video doesn’t load, <a href="https://github.com/AdanSul/ai_hw_checker/media/main/demo/demo.mp4">download it here</a>.
+  If the video doesn’t load, <a href="https://media.githubusercontent.com/media/AdanSul/ai_hw_checker/main/demo/demo.mp4">download it here</a>.
 </video>
+
 
 
 ## ⚙️ Installation
