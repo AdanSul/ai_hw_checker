@@ -58,8 +58,7 @@ python -m http.server 9000
 ```
 
 
-
 ## 🤝 Contributing
 
 Pull requests and feature suggestions are welcome.
-If you’d like to collaborate on expanding plagiarism detection or UI/UX, feel free to open an issue.
+If you’d like to collaborate on expanding plagiarism detection or UI, feel free to open an issue.
