@@ -21,10 +21,10 @@ The project started with **code assignments (Python)** but was built in a way th
 **Here’s a quick demo video of the system in action:**
 
 <video controls width="800" muted playsinline>
-  <source src="demo/demo.mp4" type="video/mp4" />
-    If it doesn’t load, download it here:
-  <a href="demo/demo.mp4">Download video</a>
+  <source src="https://media.githubusercontent.com/media/AdanSul/ai_hw_checker/main/demo/demo.mp4" type="video/mp4" />
+  If the video doesn’t load, <a href="https://github.com/AdanSul/ai_hw_checker/media/main/demo/demo.mp4">download it here</a>.
 </video>
+
 
 ## ⚙️ Installation
 
