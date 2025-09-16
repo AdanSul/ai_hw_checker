@@ -16,6 +16,12 @@ The project started with **code assignments (Python)** but was built in a way th
 
 ---
 
+## 🖥️ User Interface Overview
+
+<div align="center">
+  <img src="./demo/UI.png" width="500" alt="AI Homework Checker UI" />
+</div>
+
 ## 🎬 Demo
 
 **Here’s a quick demo video of the system in action:**
