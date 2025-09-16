@@ -16,7 +16,7 @@ The project started with **code assignments (Python)** but was built in a way th
 
 ---
 
-## 🖥️ User Interface Overview
+## 🖥️ UI Overview
 
 <div align="center">
   <img src="./demo/UI.png" width="500" alt="AI Homework Checker UI" />
