@@ -254,3 +254,4 @@ document.addEventListener("DOMContentLoaded", ()=>{
   disableDownloads();
   setTogglerEnabled(false); 
 });
+
