@@ -49,7 +49,7 @@ def build_dataframe(results: List[Dict], include_feedback: bool = True) -> pd.Da
             if include_feedback:
                 row[f"{tid}_feedback"] = t.get("feedback", "")
 
-        if "ai_score" in r:
+        if "ai_score" in r and r["ai_score"] is not None:
             row["ai_score"] = r["ai_score"]
 
         rows.append(row)
