@@ -39,7 +39,7 @@ The project started with **code assignments (Python)** but was built in a way th
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/<your-username>/ai_hw_checker.git
+git clone https://github.com/AdanSul/ai_hw_checker.git
 cd ai_hw_checker
 pip install -r requirements.txt
 ```
