@@ -26,7 +26,6 @@ The project started with **code assignments (Python)** but was built in a way th
 </video>
 
 
-
 ## ⚙️ Installation
 
 Clone the repo and install dependencies:
