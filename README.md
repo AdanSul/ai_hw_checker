@@ -20,9 +20,12 @@ The project started with **code assignments (Python)** but was built in a way th
 
 **Here’s a quick demo video of the system in action:**
 
-👉 [Watch the demo video](./demo/demo.mp4)
-
-
+<!-- README.md -->
+<video controls width="800" muted playsinline>
+  <source src="demo/demo.mp4" type="video/mp4" />
+    If it doesn’t load, download it here:
+  <a href="demo/demo.mp4">Download video</a>
+</video>
 
 ## ⚙️ Installation
 
