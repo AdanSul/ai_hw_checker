@@ -32,7 +32,7 @@ The project started with **code assignments (Python)** but was built in a way th
 </video>
 
 👉 [Watch the demo video](./demo/demo.mp4)
-
+---
 
 ## 📂 Submission Structure
 
