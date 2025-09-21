@@ -34,6 +34,29 @@ The project started with **code assignments (Python)** but was built in a way th
 👉 [Watch the demo video](./demo/demo.mp4)
 
 
+## 📂 Submission Structure
+
+Put all student submissions inside one main folder (for example: `submissions/`).  
+Each student should have their **own folder** inside it, named with their ID.  
+Inside that folder, place all the files they submitted.
+
+Example:
+
+```text
+submissions/
+├── student1/
+│   ├── task1.py
+│   ├── task2.py
+│   └── ...
+├── student2/
+│   ├── task1.py
+│   ├── task2.py
+│   └── ...
+└── ...
+```
+
+
+
 ## ⚙️ Installation
 
 Clone the repo and install dependencies:
@@ -45,7 +68,7 @@ pip install -r requirements.txt
 ```
 
 ## 🔑 Environment Variables
-Create a .env file in the project root with the following content:
+Create a `.env` file in the project root with the following content:
 ```bash
 OPENAI_API_KEY=your_api_key_here
 ```
