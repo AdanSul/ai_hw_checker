@@ -55,8 +55,6 @@ submissions/
 └── ...
 ```
 
-
-
 ## ⚙️ Installation
 
 Clone the repo and install dependencies:
