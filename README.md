@@ -44,6 +44,15 @@ cd ai_hw_checker
 pip install -r requirements.txt
 ```
 
+## 🔑 Environment Variables
+Create a .env file in the project root with the following content:
+```bash
+OPENAI_API_KEY=your_api_key_here
+```
+This key is required for the evaluation agents.<br>
+(You can get an API key from [OpenAI](https://platform.openai.com/settings/organization/api-keys))
+ 
+
 
 ## 🚀 How to Run
 
