@@ -1,3 +1,4 @@
+import time
 from ahc.config import load_config
 from ahc.pipeline import run_full_pipeline
 from ahc.exporters import export_csv, export_jsonl
@@ -7,6 +8,7 @@ def main():
     print(">> Loading config...", flush=True)
     cfg = load_config("config.json")
 
+    start_time = time.time() 
     print(">> Running pipeline (parse → evaluate → export)...", flush=True)
     results = run_full_pipeline(
         assignment_path=cfg["assignment_path"],
@@ -14,6 +16,8 @@ def main():
         model=cfg["model"],
         temperature=cfg.get("temperature", 0.1),
     )
+    elapsed = time.time() - start_time  
+    print(f">> Got {len(results)} results back from pipeline in {elapsed:.2f} seconds.", flush=True)
 
     out_dir = Path(cfg["outputs_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)

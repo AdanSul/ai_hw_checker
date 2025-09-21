@@ -52,7 +52,7 @@ def _read_file_as_text(file_path: str) -> str:
 
     # Default for text-based files (.md, .txt, etc.)
     else:
-        print("Reading text file:", file_path)
+        # print("Reading text file:", file_path)
         try:
             return path.read_text(encoding="utf-8")
         except Exception as e:
