@@ -16,7 +16,7 @@ The project started with **code assignments (Python)** but was built in a way th
 
 ---
 
-## 🖥️ User Interface Overview
+## 🖥️ UI Overview
 
 <div align="center">
   <img src="./demo/UI.png" width="500" alt="AI Homework Checker UI" />
@@ -60,7 +60,7 @@ submissions/
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/<your-username>/ai_hw_checker.git
+git clone https://github.com/AdanSul/ai_hw_checker.git
 cd ai_hw_checker
 pip install -r requirements.txt
 ```
